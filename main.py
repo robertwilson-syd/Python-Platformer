@@ -8,9 +8,12 @@ class RigidBody:
         self.velocity = [0, 0]
         self.mass = width * height
         self.momentum = [self.velocity[0] * self.mass, self.velocity[1] * self.mass]
+        self.collided_bottom = False
 
     def update(self):
         self.rect.move_ip(self.velocity)
+        if(self.rect.bottom > screen_height):
+            self.rect.bottom = screen_height
 
     def draw(self, screen):
         pg.draw.rect(screen, self.color, self.rect)
@@ -79,8 +82,6 @@ rect1 = RigidBody(100, 200, 100, 100, RECT1_COLOR)
 rect2 = RigidBody(400, 300, 20, 20, RECT2_COLOR)
 
 
-
-
 #Friction
 FRICTION_COEFFICIENT = 0.1
 
@@ -104,14 +105,15 @@ def collide_border(rect):
         rect.velocity[1] *= -1
     if rect.rect.bottom >= screen_height:
         print(rect.velocity[1])
-        if rect.velocity[1] <= 5:
+        if rect.velocity[1] > 0:
             rect.velocity[1] = 0
-        else:
-            rect.velocity[1] *= -1
+        # else:
+        #     rect.velocity[1] *= 0
+        #     rect.collided_bottom = True
 
 
 #Move Speed
-MOVE_SPEED = 2
+MOVE_SPEED = 30
 
 # Main loop
 clock = pg.time.Clock()
@@ -132,11 +134,12 @@ while running:
     apply_gravity(rect2)
     
     # Check for key presses to change velocity of rect1
-    if(frame_count == 10):
+    if(frame_count == 0):
         keys = pg.key.get_pressed()
-        rect1.velocity[1] += MOVE_SPEED * (keys[pg.K_DOWN] - keys[pg.K_UP])
+        # rect1.velocity[1] += MOVE_SPEED * (keys[pg.K_DOWN] - (5 * keys[pg.K_UP]))
+        rect1.velocity[1] += - (30 * keys[pg.K_UP])
         rect1.velocity[0] += MOVE_SPEED * (keys[pg.K_RIGHT] - keys[pg.K_LEFT])
-        frame_count = 0
+        frame_count = 30
     # keys = pg.key.get_pressed()
     # if keys[pg.K_DOWN] - keys[pg.K_UP] != 0:
     #     rect1.velocity[1] = MOVE_SPEED * (keys[pg.K_DOWN] - keys[pg.K_UP])
@@ -174,7 +177,7 @@ while running:
     # Update the display
     pg.display.flip()
 
-    frame_count += 1
+    frame_count -= 1
 
     # Cap the frame rate
     clock.tick(60)
